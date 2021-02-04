@@ -27,7 +27,10 @@
     import Scroll from 'components/common/scroll/Scroll'
     import GoodsList from 'components/content/goods/GoodsList'
 
+    import {debounce} from "../../common/utils";
+
     import {getDetail,Goods,GoodsParam,Shop,getRecommend} from 'network/detail'
+    import {itemListenerMixin} from "../../common/mixin";
 
     export default {
       name: "Detail",
@@ -40,9 +43,11 @@
           detailInfo:{},
           paramsInfo: {},
           commentInfo: {},
-          recommends: []
+          recommends: [],
+
         }
       },
+      mixins:[itemListenerMixin],
       components:{
         DetailNavBar,
         DetailSwiper,
@@ -80,21 +85,31 @@
           this.paramsInfo = new GoodsParam(data.itemParams.info,data.itemParams.rule)
 
           //7.取出评论信息
-          if (data.rate.cRate != 0){
-            this.commentInfo = data.rate.list;
+          if (data.rate.list){
+            this.commentInfo = data.rate.list[0];
           }
         })
 
         //详情页面
         getRecommend().then(res=>{
-          this.recommends = res.data;
+          this.recommends = res.data.list;
         })
       },
-        methods:{
+      mounted() {
+        /*const refresh = debounce(this.$refs.scroll.refresh,100 )
+        this.itemImgItemListener = ()=>{
+          refresh();
+        }
+        this.$bus.$on('itemImageLoad', this.itemImgItemListener)*/
+      },
+      methods:{
           imageLoad(){
             this.$refs.scroll.refresh()
           }
-        }
+      },
+      destroy(){
+        this.$bus.$off('itemImageLoad',this.itemImgItemListener)
+      }
     }
 </script>
 

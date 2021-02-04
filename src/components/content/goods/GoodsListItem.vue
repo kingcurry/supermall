@@ -22,7 +22,7 @@
     },
     methods:{
       imageLoad(){
-        this.$bus.$emit('homeItemImageLoad')
+        this.$bus.$emit('itemImageLoad')
 
 
         /*if (this.$route.path.indexOf('/home')){

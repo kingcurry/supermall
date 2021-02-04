@@ -42,6 +42,7 @@
   import {getHomeMultidata,getHomeGoods} from "network/home";
 
   import {debounce} from "../../common/utils";
+  import {itemListenerMixin} from "../../common/mixin";
 
   export default {
     name: "Home",
@@ -58,7 +59,8 @@
         isShowBackTop: false,
         tabOffsetTop: '',
         isTabFixed: false,
-        saveY: ''
+        saveY: '',
+
       }
     },
     computed:{
@@ -76,6 +78,7 @@
       Scroll,
       BackTop
     },
+    mixins:[itemListenerMixin],
     created() {
       //1.请求多个数据
       this.getHomeMultidata();
@@ -87,12 +90,15 @@
 
     },
     mounted() {
-      const refresh = debounce(this.$refs.scroll.refresh,0 )
-      //3.监听item中图片加载完成
-      this.$bus.$on('itemImageLoad',()=>{
-        refresh();
-      })
+      /*const refresh = debounce(this.$refs.scroll.refresh,100 )
 
+      //对监听事件进行保存
+      this.itemImgItemListener = ()=>{
+        refresh();
+      };
+      //3.监听item中图片加载完成
+      this.$bus.$on('itemImageLoad',this.itemImgItemListener)
+*/
 
     },
     methods:{
@@ -161,8 +167,11 @@
       this.$refs.scroll.refresh();
     },
     deactivated() {
-      console.log(this.$refs.scroll.getScrollY());
+      //保存Y值
       this.saveY = this.$refs.scroll.getScrollY();
+
+      //2.取消全局事件监听
+      this.$bus.$off('itemImageLoad',this.itemImgItemListener)
     }
   }
 </script>
